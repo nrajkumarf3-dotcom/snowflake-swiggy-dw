@@ -5,10 +5,12 @@ use role sysadmin;
 
 use database "sandbox";
 
+use schema "clean_sch";
+
 CREATE OR REPLACE TASK "clean_sch".task_location_clean
 WAREHOUSE = adhoc_wh
 SCHEDULE = 'USING CRON * * * * * UTC'
-WHEN SYSTEM$STREAM_HAS_DATA('stage_sch.location_stm')  
+WHEN SYSTEM$STREAM_HAS_DATA('"stage_sch".location_stm')  
 AS
 MERGE INTO "clean_sch".restaurant_location AS target
 USING (
@@ -139,7 +141,7 @@ WHEN NOT MATCHED THEN
 CREATE OR REPLACE TASK "clean_sch".task_restaurant_clean
 WAREHOUSE = adhoc_wh
 SCHEDULE = 'USING CRON * * * * * UTC'
-WHEN SYSTEM$STREAM_HAS_DATA('stage_sch.restaurant_stm')  
+WHEN SYSTEM$STREAM_HAS_DATA('"stage_sch".restaurant_stm')  
 AS
 MERGE INTO "clean_sch".restaurant AS target
 USING (
@@ -230,7 +232,7 @@ WHEN NOT MATCHED THEN
 CREATE OR REPLACE TASK "clean_sch".task_customer_clean
 WAREHOUSE = adhoc_wh
 SCHEDULE = 'USING CRON * * * * * UTC'
-WHEN SYSTEM$STREAM_HAS_DATA('stage_sch.customer_stm')  
+WHEN SYSTEM$STREAM_HAS_DATA('"stage_sch".customer_stm')  
 AS
 MERGE INTO "clean_sch".customer AS target
 USING (
@@ -308,7 +310,7 @@ WHEN NOT MATCHED THEN
 CREATE OR REPLACE TASK "clean_sch".task_customeraddress_clean
 WAREHOUSE = adhoc_wh
 SCHEDULE = 'USING CRON * * * * * UTC'
-WHEN SYSTEM$STREAM_HAS_DATA('stage_sch.customeraddress_stm')  
+WHEN SYSTEM$STREAM_HAS_DATA('"stage_sch".customeraddress_stm')  
 AS
 MERGE INTO "clean_sch".customer_address AS clean
 USING (
@@ -407,7 +409,7 @@ WHEN MATCHED THEN
 CREATE OR REPLACE TASK "clean_sch".task_menu_clean
 WAREHOUSE = adhoc_wh
 SCHEDULE = 'USING CRON * * * * * UTC'
-WHEN SYSTEM$STREAM_HAS_DATA('stage_sch.menu_stm')  
+WHEN SYSTEM$STREAM_HAS_DATA('"stage_sch".menu_stm')  
 AS
 MERGE INTO "clean_sch".menu AS target
 USING (
@@ -485,7 +487,7 @@ WHEN NOT MATCHED THEN
 CREATE OR REPLACE TASK "clean_sch".task_deliveryagent_clean
 WAREHOUSE = adhoc_wh
 SCHEDULE = 'USING CRON * * * * * UTC'
-WHEN SYSTEM$STREAM_HAS_DATA('stage_sch.deliveryagent_stm')  
+WHEN SYSTEM$STREAM_HAS_DATA('"stage_sch".deliveryagent_stm')  
 AS
 MERGE INTO "clean_sch".delivery_agent AS target
 USING "stage_sch".deliveryagent_stm AS source
@@ -541,7 +543,7 @@ WHEN NOT MATCHED THEN
 CREATE OR REPLACE TASK "clean_sch".task_delivery_clean
 WAREHOUSE = adhoc_wh
 SCHEDULE = 'USING CRON * * * * * UTC'
-WHEN SYSTEM$STREAM_HAS_DATA('stage_sch.delivery_stm')  
+WHEN SYSTEM$STREAM_HAS_DATA('"stage_sch".delivery_stm')  
 AS
 MERGE INTO 
     "clean_sch".delivery AS target
@@ -600,7 +602,7 @@ WHEN NOT MATCHED THEN
 CREATE OR REPLACE TASK "clean_sch".task_orders_clean
 WAREHOUSE = adhoc_wh
 SCHEDULE = 'USING CRON * * * * * UTC'
-WHEN SYSTEM$STREAM_HAS_DATA('stage_sch.orders_stm')  
+WHEN SYSTEM$STREAM_HAS_DATA('"stage_sch".orders_stm')  
 AS
 MERGE INTO "clean_sch".ORDERS AS target
 USING "stage_sch".orders_stm AS source
@@ -652,7 +654,7 @@ WHEN NOT MATCHED THEN
 CREATE OR REPLACE TASK "clean_sch".task_orderitems_clean
 WAREHOUSE = adhoc_wh
 SCHEDULE = 'USING CRON * * * * * UTC'
-WHEN SYSTEM$STREAM_HAS_DATA('stage_sch.orderitem_stm')  
+WHEN SYSTEM$STREAM_HAS_DATA('"stage_sch".orderitem_stm')  
 AS
 MERGE INTO "clean_sch".order_item AS target
 USING "stage_sch".orderitem_stm AS source
@@ -702,3 +704,17 @@ WHEN NOT MATCHED THEN
         source._stg_file_md5,
         CURRENT_TIMESTAMP()
     );    
+
+ALTER TASK "clean_sch".task_location_clean SUSPEND;
+ALTER TASK "clean_sch".task_restaurant_clean SUSPEND;
+ALTER TASK "clean_sch".task_customer_clean SUSPEND;
+ALTER TASK "clean_sch".task_customeraddress_clean SUSPEND;
+ALTER TASK "clean_sch".task_menu_clean SUSPEND;
+ALTER TASK "clean_sch".task_deliveryagent_clean SUSPEND;
+ALTER TASK "clean_sch".task_delivery_clean SUSPEND;
+ALTER TASK "clean_sch".task_orders_clean SUSPEND;
+ALTER TASK "clean_sch".task_orderitems_clean SUSPEND;
+
+ALTER TASK <task_name> SUSPEND/RESUME;
+
+
